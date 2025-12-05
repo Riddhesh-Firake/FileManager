@@ -22,7 +22,7 @@ const FileThumbnail = ({ file, size = 'normal' }) => {
           try {
             const token = localStorage.getItem('token');
             // Fetch the signed URL from the backend
-            const res = await axios.get(`http://localhost:5000/api/files/${file._id}/download`, {
+            const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/files/${file._id}/download`, {
               headers: { 'x-auth-token': token }
             });
             if (isMounted) {

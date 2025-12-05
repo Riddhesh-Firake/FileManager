@@ -23,7 +23,7 @@ const FileThumbnail = ({ file, size = 'normal' }) => {
       const fetchImage = async () => {
         try {
           const token = localStorage.getItem('token');
-          const res = await axios.get(`http://localhost:5000/api/files/${file._id}/download`, {
+          const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/files/${file._id}/download`, {
             headers: { 'x-auth-token': token }
           });
           if (isMounted) {
@@ -100,7 +100,7 @@ const DashboardPage = () => {
     if (!token) return navigate('/login');
 
     try {
-      const res = await axios.get('http://localhost:5000/api/files', {
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/files`, {
         headers: { 'x-auth-token': token }
       });
       setFiles(res.data.files);
@@ -183,7 +183,7 @@ const DashboardPage = () => {
     const token = localStorage.getItem('token');
 
     try {
-      await axios.post('http://localhost:5000/api/files/upload', formData, {
+      await axios.post(`${process.env.REACT_APP_API_URL}/api/files/upload`, formData, {
         headers: { 
           'x-auth-token': token,
           'Content-Type': 'multipart/form-data'
@@ -218,7 +218,7 @@ const DashboardPage = () => {
     e.stopPropagation();
     const token = localStorage.getItem('token');
     try {
-      await axios.put(`http://localhost:5000/api/files/${fileId}/star`, {}, { headers: { 'x-auth-token': token } });
+      await axios.put(`${process.env.REACT_APP_API_URL}/api/files/${fileId}/star`, {}, { headers: { 'x-auth-token': token } });
       fetchFiles();
     } catch(err) {
       console.error(err);
@@ -230,7 +230,7 @@ const DashboardPage = () => {
     if(!window.confirm("Move to Trash?")) return;
     const token = localStorage.getItem('token');
     try {
-      await axios.delete(`http://localhost:5000/api/files/${fileId}`, { headers: { 'x-auth-token': token } });
+      await axios.delete(`${process.env.REACT_APP_API_URL}/api/files/${fileId}`, { headers: { 'x-auth-token': token } });
       fetchFiles();
       if (selectedFile?._id === fileId) setSelectedFile(null);
     } catch(err) {
@@ -242,7 +242,7 @@ const DashboardPage = () => {
     e.stopPropagation();
     const token = localStorage.getItem('token');
     try {
-      await axios.put(`http://localhost:5000/api/files/${fileId}/restore`, {}, { headers: { 'x-auth-token': token } });
+      await axios.put(`${process.env.REACT_APP_API_URL}/api/files/${fileId}/restore`, {}, { headers: { 'x-auth-token': token } });
       fetchFiles();
     } catch(err) {
       alert("Restore failed");
@@ -254,7 +254,7 @@ const DashboardPage = () => {
     if(!window.confirm("Permanently delete? This cannot be undone.")) return;
     const token = localStorage.getItem('token');
     try {
-      await axios.delete(`http://localhost:5000/api/files/${fileId}/permanent`, { headers: { 'x-auth-token': token } });
+      await axios.delete(`${process.env.REACT_APP_API_URL}/api/files/${fileId}/permanent`, { headers: { 'x-auth-token': token } });
       fetchFiles();
       if (selectedFile?._id === fileId) setSelectedFile(null);
     } catch(err) {
@@ -271,7 +271,7 @@ const DashboardPage = () => {
     if (!renameFile) return;
     const token = localStorage.getItem('token');
     try {
-      await axios.put(`http://localhost:5000/api/files/${renameFile._id}`, 
+      await axios.put(`${process.env.REACT_APP_API_URL}/api/files/${renameFile._id}`, 
         { newName },
         { headers: { 'x-auth-token': token } }
       );
@@ -288,7 +288,7 @@ const DashboardPage = () => {
   const handleDownload = async (fileId) => {
     const token = localStorage.getItem('token');
     try {
-      const res = await axios.get(`http://localhost:5000/api/files/${fileId}/download`, {
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/files/${fileId}/download`, {
         headers: { 'x-auth-token': token }
       });
       window.open(res.data.downloadUrl, '_blank');

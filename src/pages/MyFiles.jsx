@@ -23,14 +23,14 @@ const MyFiles = ({ searchTerm = '', setSearchTerm }) => {
     const token = localStorage.getItem('token');
     try {
       if (action === 'download') {
-        const res = await axios.get(`http://localhost:5000/api/files/${file._id}/download`, { headers: { 'x-auth-token': token } });
+        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/files/${file._id}/download`, { headers: { 'x-auth-token': token } });
         window.open(res.data.downloadUrl, '_blank');
       } else if (action === 'star') {
-        await axios.put(`http://localhost:5000/api/files/${file._id}/star`, {}, { headers: { 'x-auth-token': token } });
+        await axios.put(`${process.env.REACT_APP_API_URL}/api/files/${file._id}/star`, {}, { headers: { 'x-auth-token': token } });
         fetchFiles();
       } else if (action === 'delete') {
         if(window.confirm("Move to Trash?")) {
-          await axios.delete(`http://localhost:5000/api/files/${file._id}`, { headers: { 'x-auth-token': token } });
+          await axios.delete(`${process.env.REACT_APP_API_URL}/api/files/${file._id}`, { headers: { 'x-auth-token': token } });
           fetchFiles();
         }
       } else if (action === 'rename') {
@@ -43,13 +43,13 @@ const MyFiles = ({ searchTerm = '', setSearchTerm }) => {
 
   const handleRenameSubmit = async (newName) => {
     const token = localStorage.getItem('token');
-    await axios.put(`http://localhost:5000/api/files/${renameFile._id}`, { newName }, { headers: { 'x-auth-token': token } });
+    await axios.put(`${process.env.REACT_APP_API_URL}/api/files/${renameFile._id}`, { newName }, { headers: { 'x-auth-token': token } });
     setRenameFile(null); fetchFiles();
   };
 
   const handleShareSubmit = async (email) => {
     const token = localStorage.getItem('token');
-    await axios.post(`http://localhost:5000/api/files/${shareFile._id}/share`, { email }, { headers: { 'x-auth-token': token } });
+    await axios.post(`${process.env.REACT_APP_API_URL}/api/files/${shareFile._id}/share`, { email }, { headers: { 'x-auth-token': token } });
     setShareFile(null); alert(`Shared with ${email}`);
   };
 

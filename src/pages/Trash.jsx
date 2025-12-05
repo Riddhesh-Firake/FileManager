@@ -14,11 +14,11 @@ const Trash = () => {
     const token = localStorage.getItem('token');
     try {
       if (action === 'restore') {
-        await axios.put(`http://localhost:5000/api/files/${file._id}/restore`, {}, { headers: { 'x-auth-token': token } });
+        await axios.put(`${process.env.REACT_APP_API_URL}/api/files/${file._id}/restore`, {}, { headers: { 'x-auth-token': token } });
         fetchFiles();
       } else if (action === 'permanentDelete') {
         if(window.confirm("Permanently Delete?")) {
-          await axios.delete(`http://localhost:5000/api/files/${file._id}/permanent`, { headers: { 'x-auth-token': token } });
+          await axios.delete(`${process.env.REACT_APP_API_URL}/api/files/${file._id}/permanent`, { headers: { 'x-auth-token': token } });
           fetchFiles();
         }
       }

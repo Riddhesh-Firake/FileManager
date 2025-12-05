@@ -42,7 +42,7 @@ const LoginPage = () => {
     const payload = isLogin ? { email, password } : { name, email, password };
 
     try {
-      const res = await axios.post(`http://localhost:5000${endpoint}`, payload);
+      const res = await axios.post(`${process.env.REACT_APP_API_URL}${endpoint}`, payload);
 
       if (isLogin) {
         // Handle Login Success

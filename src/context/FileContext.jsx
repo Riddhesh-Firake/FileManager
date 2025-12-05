@@ -27,7 +27,7 @@ export const FileProvider = ({ children }) => {
 
     try {
       setLoading(true);
-      const res = await axios.get('http://localhost:5000/api/files', {
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/files`, {
         headers: { 'x-auth-token': token }
       });
       setFiles(res.data.files);
@@ -74,7 +74,7 @@ export const FileProvider = ({ children }) => {
     const token = localStorage.getItem('token');
 
     try {
-      await axios.post('http://localhost:5000/api/files/upload', formData, {
+      await axios.post(`${process.env.REACT_APP_API_URL}/api/files/upload`, formData, {
         headers: { 'x-auth-token': token, 'Content-Type': 'multipart/form-data' },
         onUploadProgress: (ev) => {
           const percent = Math.round((ev.loaded * 100) / ev.total);
