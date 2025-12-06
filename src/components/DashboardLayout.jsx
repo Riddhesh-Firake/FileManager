@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useFileContext } from '../context/FileContext';
-import { Upload, Menu, Search, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { Upload, Menu, Search, CheckCircle, AlertCircle } from 'lucide-react';
 import Sidebar from './Sidebar';
+import Breadcrumb from './Breadcrumb';
+import { ToastContainer } from './Toast';
+import ConfirmDialog from './ConfirmDialog';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // Utility functions for localStorage preview management
@@ -21,9 +24,10 @@ function getPreviewFromLocal(fileId) {
 
 const DashboardLayout = ({ children }) => {
   const [showAccountDetails, setShowAccountDetails] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, storage, uploadQueue, setUploadQueue, triggerUpload, fileInputRef, uploadFiles } = useFileContext();
+  const { user, storage, uploadQueue, setUploadQueue, triggerUpload, fileInputRef, uploadFiles, toasts, removeToast, retry } = useFileContext();
   
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -54,8 +58,28 @@ const DashboardLayout = ({ children }) => {
 
   // ...NavItem removed, now handled in Sidebar
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    navigate('/login');
+  };
+
   return (
     <div className="flex h-screen w-full overflow-hidden bg-[#F3F3F3] text-[#191A23] font-sans relative">
+      
+      {/* Logout Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={showLogoutConfirm}
+        onClose={() => setShowLogoutConfirm(false)}
+        onConfirm={handleLogout}
+        title="Log Out?"
+        message="Are you sure you want to log out of your account?"
+        confirmText="Log Out"
+        isDangerous={false}
+      />
+      
+      {/* Toast Notifications */}
+      <ToastContainer toasts={toasts} onClose={removeToast} onRetry={retry} />
       
       {/* Hidden File Input */}
       <input type="file" multiple className="hidden" ref={fileInputRef} onChange={(e) => uploadFiles(e.target.files)} />
@@ -67,7 +91,7 @@ const DashboardLayout = ({ children }) => {
             initial={{ y: 100, opacity: 0 }} 
             animate={{ y: 0, opacity: 1 }} 
             exit={{ y: 100, opacity: 0 }} 
-            className="fixed bottom-24 right-8 w-80 bg-white border-2 border-[#191A23] rounded-xl shadow-[4px_4px_0_#191A23] overflow-hidden z-[60]"
+            className="fixed bottom-20 right-4 md:bottom-24 md:right-8 w-[calc(100vw-2rem)] max-w-80 bg-white border-2 border-[#191A23] rounded-xl shadow-[4px_4px_0_#191A23] overflow-hidden z-[60]"
           >
             <div className="bg-[#B9FF66] border-b-2 border-[#191A23] px-4 py-3 flex justify-between items-center">
               <span className="font-bold text-sm text-[#191A23]">Uploading ({uploadQueue.length})</span>
@@ -112,10 +136,10 @@ const DashboardLayout = ({ children }) => {
     damping: 30,
     mass: 0.6,
   }}
-  className="fixed bottom-8 right-8 bg-[#191A23] text-white h-14 rounded-full border-2 border-[#191A23] shadow-[4px_4px_0_#B9FF66] hover:shadow-[2px_2px_0_#B9FF66] transition-shadow z-[55] flex items-center justify-center overflow-hidden px-4"
+  className="fixed bottom-4 right-4 md:bottom-8 md:right-8 bg-[#191A23] text-white h-12 md:h-14 rounded-full border-2 border-[#191A23] shadow-[4px_4px_0_#B9FF66] hover:shadow-[2px_2px_0_#B9FF66] transition-shadow z-[55] flex items-center justify-center overflow-hidden px-3 md:px-4"
 >
   <motion.div layout className="flex items-center gap-2">
-    <Upload size={24} />
+    <Upload size={20} className="md:w-6 md:h-6" />
     <AnimatePresence initial={false}>
       {isUploadHovered && (
         <motion.span
@@ -127,7 +151,7 @@ const DashboardLayout = ({ children }) => {
             duration: 0.2,
             ease: "easeInOut",
           }}
-          className="font-bold whitespace-nowrap overflow-hidden"
+          className="font-bold whitespace-nowrap overflow-hidden hidden md:inline"
         >
           Upload New
         </motion.span>
@@ -138,9 +162,18 @@ const DashboardLayout = ({ children }) => {
 
 
       {/* Mobile Sidebar Backdrop */}
-      {sidebarOpen && (
-        <div className="fixed inset-0 bg-black/50 z-40 md:hidden" onClick={() => setSidebarOpen(false)}></div>
-      )}
+      <AnimatePresence>
+        {sidebarOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 bg-black/50 z-40 md:hidden" 
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+      </AnimatePresence>
       
       {/* SIDEBAR */}
       <Sidebar
@@ -154,15 +187,15 @@ const DashboardLayout = ({ children }) => {
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col h-full min-w-0 transition-all duration-300">
-        <header className="h-20 bg-white border-b-2 border-[#191A23] px-6 flex items-center justify-between sticky top-0 z-40">
-          <div className="flex items-center gap-4">
+        <header className="h-16 md:h-20 bg-white border-b-2 border-[#191A23] px-3 md:px-6 flex items-center justify-between sticky top-0 z-40">
+          <div className="flex items-center gap-2 md:gap-4">
             <button onClick={() => setSidebarOpen(true)} className="md:hidden p-2 border-2 border-[#191A23] rounded-lg bg-[#B9FF66] shadow-[2px_2px_0_#191A23]">
               <Menu size={20} />
             </button>
-            <h1 className="text-2xl font-bold hidden sm:block">Dashboard</h1>
+            <h1 className="text-xl md:text-2xl font-bold hidden sm:block">Dashboard</h1>
           </div>
 
-          <div className="flex-1 max-w-lg mx-6 relative hidden md:block">
+          <div className="flex-1 max-w-lg mx-3 md:mx-6 relative hidden md:block">
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500" size={18} />
             <input
               type="text"
@@ -173,7 +206,7 @@ const DashboardLayout = ({ children }) => {
             />
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 md:gap-4">
             {/* Account Details Dropdown */}
             <div className="relative">
               <div
@@ -190,19 +223,20 @@ const DashboardLayout = ({ children }) => {
                   <div className="mb-2"><span className="font-semibold">Email:</span> {user.email || 'Unknown'}</div>
                   <div className="mb-2"><span className="font-semibold">Storage Used:</span> {formatBytes(storage.used)} / {formatBytes(storage.limit)}</div>
                   <button
-                    className="mt-2 px-4 py-2 bg-[#B9FF66] border-2 border-[#191A23] rounded-lg font-bold hover:bg-[#191A23] hover:text-white transition-colors"
-                    onClick={() => { if(window.confirm('Log out?')) { localStorage.removeItem('token'); navigate('/login'); } }}
+                    className="mt-2 px-4 py-2 bg-[#191A23] text-white border-2 border-[#191A23] rounded-lg font-bold hover:bg-red-600 hover:border-red-600 transition-colors shadow-[2px_2px_0_#191A23] hover:shadow-[2px_2px_0_#B9FF66]"
+                    onClick={() => { setShowAccountDetails(false); setShowLogoutConfirm(true); }}
                   >Log Out</button>
                 </div>
               )}
             </div>
           </div>
-          // Account details dropdown state
-          const [showAccountDetails, setShowAccountDetails] = useState(false);
         </header>
 
-        <div className="flex-1 flex overflow-hidden p-6 md:p-8 bg-white/50 relative">
-           <div className="w-full h-full overflow-y-auto pr-2">
+        <div className="flex-1 flex overflow-hidden p-3 sm:p-4 md:p-6 lg:p-8 bg-white/50 relative">
+           <div className="w-full h-full overflow-y-auto pr-1 md:pr-2">
+             {/* Breadcrumb Navigation */}
+             <Breadcrumb />
+             
              {/* Pass searchTerm and setSearchTerm as props to children */}
              {React.cloneElement(children, { searchTerm, setSearchTerm })}
              {/* ...existing code... */}

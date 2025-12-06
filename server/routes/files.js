@@ -36,8 +36,28 @@ router.post('/upload', auth, upload.single('file'), async (req, res) => {
     const user = await User.findById(req.user.id);
     if (!user) return res.status(404).json({ msg: 'User not found' });
 
+    // Storage quota validation
     if (user.storageUsed + req.file.size > user.storageLimit) {
       return res.status(400).json({ msg: 'Storage quota exceeded (250MB limit)' });
+    }
+
+    // Validate parent folder if provided
+    const { parentFolder } = req.body;
+    if (parentFolder) {
+      const Folder = require('../models/Folder');
+      const folder = await Folder.findById(parentFolder);
+      
+      if (!folder) {
+        return res.status(404).json({ msg: 'Parent folder not found' });
+      }
+      
+      if (folder.user.toString() !== req.user.id) {
+        return res.status(403).json({ msg: "You don't have permission to upload to this folder" });
+      }
+      
+      if (folder.isDeleted) {
+        return res.status(400).json({ msg: 'Cannot upload to a deleted folder' });
+      }
     }
 
     await b2.authorize();
@@ -60,7 +80,8 @@ router.post('/upload', auth, upload.single('file'), async (req, res) => {
       fileSize: req.file.size,
       fileType: req.file.mimetype,
       b2FileId: uploadResponse.data.fileId,
-      b2FileName: uploadResponse.data.fileName
+      b2FileName: uploadResponse.data.fileName,
+      parentFolder: parentFolder || null
     });
 
     await newFile.save();
@@ -98,6 +119,24 @@ router.get('/shared', auth, async (req, res) => {
       
     res.json(files);
   } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 3b. Get Recent Files
+router.get('/recent', auth, async (req, res) => {
+  try {
+    // Find user's files sorted by lastAccessed, limit to 10 most recent
+    const files = await File.find({ 
+      user: req.user.id,
+      isDeleted: false 
+    })
+      .sort({ lastAccessed: -1 })
+      .limit(10);
+    
+    res.json(files);
+  } catch (err) {
+    console.error('Get recent files error:', err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -140,7 +179,50 @@ router.put('/:id', auth, async (req, res) => {
   }
 });
 
-// 6. Toggle Star
+// 6. Move File
+router.put('/:id/move', auth, async (req, res) => {
+  try {
+    const { destinationFolderId } = req.body;
+    
+    const file = await File.findById(req.params.id);
+    
+    if (!file) {
+      return res.status(404).json({ msg: 'File not found' });
+    }
+    
+    if (file.user.toString() !== req.user.id) {
+      return res.status(403).json({ msg: "You don't have permission to move this file" });
+    }
+    
+    // If moving to a specific folder (not root)
+    if (destinationFolderId) {
+      const Folder = require('../models/Folder');
+      const destinationFolder = await Folder.findById(destinationFolderId);
+      
+      if (!destinationFolder) {
+        return res.status(404).json({ msg: 'Destination folder not found' });
+      }
+      
+      if (destinationFolder.user.toString() !== req.user.id) {
+        return res.status(403).json({ msg: "You don't have permission to access the destination folder" });
+      }
+    }
+    
+    // Store original parent in case of failure
+    const originalParent = file.parentFolder;
+    
+    // Update parent folder reference
+    file.parentFolder = destinationFolderId || null;
+    await file.save();
+    
+    res.json(file);
+  } catch (err) {
+    console.error('Move file error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 7. Toggle Star
 router.put('/:id/star', auth, async (req, res) => {
   try {
     let file = await File.findById(req.params.id);
@@ -162,7 +244,7 @@ router.put('/:id/star', auth, async (req, res) => {
   }
 });
 
-// 7. Soft Delete
+// 8. Soft Delete
 router.delete('/:id', auth, async (req, res) => {
     try {
         const file = await File.findById(req.params.id);
@@ -179,7 +261,7 @@ router.delete('/:id', auth, async (req, res) => {
     }
 });
 
-// 8. Restore File
+// 9. Restore File
 router.put('/:id/restore', auth, async (req, res) => {
     try {
         const file = await File.findById(req.params.id);
@@ -196,7 +278,7 @@ router.put('/:id/restore', auth, async (req, res) => {
     }
 });
 
-// 9. Permanent Delete
+// 10. Permanent Delete
 router.delete('/:id/permanent', auth, async (req, res) => {
     try {
         const file = await File.findById(req.params.id);
@@ -223,7 +305,7 @@ router.delete('/:id/permanent', auth, async (req, res) => {
     }
 });
 
-// 10. Download/View
+// 11. Download/View
 router.get('/:id/download', auth, async (req, res) => {
   try {
     const file = await File.findById(req.params.id);
@@ -237,6 +319,10 @@ router.get('/:id/download', auth, async (req, res) => {
     if (!isOwner && !isShared) {
       return res.status(401).json({ msg: 'Not authorized' });
     }
+
+    // Update lastAccessed timestamp
+    file.lastAccessed = new Date();
+    await file.save();
 
     const authResponse = await b2.authorize();
     const downloadUrlBase = authResponse.data.downloadUrl;

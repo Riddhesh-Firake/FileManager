@@ -4,7 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest --runInBand"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "coveragePathIgnorePatterns": [
+      "/node_modules/"
+    ]
   },
   "keywords": [],
   "author": "",
@@ -19,5 +25,9 @@
     "mongoose": "^9.0.0",
     "multer": "^2.0.2",
     "uuid": "^13.0.0"
+  },
+  "devDependencies": {
+    "fast-check": "^4.3.0",
+    "jest": "^30.2.0"
   }
 }

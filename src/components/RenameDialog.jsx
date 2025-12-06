@@ -25,7 +25,7 @@ const RenameDialog = ({ isOpen, onClose, onRename, currentName }) => {
             initial={{ scale: 0.9, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.9, opacity: 0, y: 20 }}
-            className="relative w-full max-w-sm bg-white border-2 border-[#191A23] rounded-2xl shadow-[8px_8px_0_#191A23] p-6"
+            className="relative w-full max-w-sm mx-4 bg-white border-2 border-[#191A23] rounded-2xl shadow-[8px_8px_0_#191A23] p-5 sm:p-6"
           >
              {/* UPDATED: Changed div to button and added X icon */}
              <button 
@@ -35,7 +35,7 @@ const RenameDialog = ({ isOpen, onClose, onRename, currentName }) => {
                 <X size={20} className="text-[#191A23]" />
              </button>
             
-            <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+            <h3 className="text-lg sm:text-xl font-bold mb-4 flex items-center gap-2">
               <Edit2 size={20} /> Rename File
             </h3>
             

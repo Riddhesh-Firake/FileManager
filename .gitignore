@@ -7,6 +7,11 @@
 
 # testing
 /coverage
+*.test.js
+*.test.jsx
+*.spec.js
+*.spec.jsx
+**/__tests__/
 
 # production
 /build
@@ -23,3 +28,8 @@ yarn-debug.log*
 yarn-error.log*
 
 .env
+
+# documentation (not needed for deployment)
+*.md
+!README.md
+.kiro/

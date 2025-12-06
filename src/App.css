@@ -36,3 +36,31 @@
     transform: rotate(360deg);
   }
 }
+
+/* Wave Button Animation - Bottom Left Corner */
+.wave-button::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 150px;
+  height: 150px;
+  background: #B9FF66;
+  border-radius: 50%;
+  transform: translate(-50%, 50%);
+  transition: all 0.7s ease;
+  z-index: 1;
+}
+
+.wave-button:hover::before {
+  width: 400px;
+  height: 400px;
+}
+
+.wave-button:hover {
+  color: #191A23 !important;
+}
+
+.wave-button:active::before {
+  background: #a3e655;
+}

@@ -12,8 +12,8 @@ const LoginPage = () => {
   
   // Form States
   const [name, setName] = useState('');
-  const [email, setEmail] = useState('jane@positivus.com');
-  const [password, setPassword] = useState('password123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -61,7 +61,15 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="w-full h-screen bg-[#F3F3F3] flex items-center justify-center p-4">
+    <div className="w-full h-screen bg-[#F3F3F3] flex items-center justify-center p-4 relative overflow-hidden">
+      
+      {/* Floating Decorative Particles */}
+      <div className="absolute top-10 left-10 w-16 h-16 bg-[#B9FF66] rounded-full border-2 border-[#191A23] opacity-30 animate-bounce" style={{ animationDuration: '3s' }}></div>
+      <div className="absolute top-32 right-20 w-12 h-12 bg-[#191A23] rounded-lg border-2 border-[#B9FF66] opacity-20 animate-pulse" style={{ animationDuration: '4s' }}></div>
+      <div className="absolute bottom-20 left-32 w-20 h-20 bg-white border-2 border-[#191A23] rounded-full opacity-40 animate-bounce" style={{ animationDuration: '5s' }}></div>
+      <div className="absolute bottom-40 right-16 w-14 h-14 bg-[#B9FF66] rounded-lg border-2 border-[#191A23] opacity-25 animate-pulse" style={{ animationDuration: '3.5s' }}></div>
+      <div className="absolute top-1/2 left-16 w-10 h-10 bg-[#191A23] rounded-full border-2 border-[#B9FF66] opacity-15 animate-bounce" style={{ animationDuration: '4.5s' }}></div>
+      <div className="absolute top-1/3 right-32 w-8 h-8 bg-white border-2 border-[#191A23] rounded-lg opacity-30 animate-pulse" style={{ animationDuration: '3.8s' }}></div>
       
       {/* Success Dialog Component */}
       <SuccessDialog 
@@ -81,6 +89,14 @@ const LoginPage = () => {
         className="w-full max-w-md bg-white border-2 border-[#191A23] rounded-2xl shadow-[4px_4px_0_#191A23] p-6 sm:p-8 relative overflow-hidden"
       >
         
+        {/* Back to Home Button - Top Left */}
+        <button 
+          onClick={() => navigate('/')} 
+          className="absolute top-4 left-4 text-xs text-gray-400 hover:text-gray-600 z-20 flex items-center gap-1"
+        >
+          ← Back to Home
+        </button>
+
         {/* Top-Right Decorative corner (Always present) */}
         <div className="absolute -top-10 -right-10 w-20 h-20 bg-[#B9FF66] rounded-full border-2 border-[#191A23] z-0"></div>
         
@@ -97,7 +113,7 @@ const LoginPage = () => {
           )}
         </AnimatePresence>
 
-        <motion.div layout className="mb-8 text-center relative z-10">
+        <motion.div layout className="mb-8 text-center relative z-10 mt-8">
           <div className="inline-flex items-center gap-2 mb-4">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
               <path d="M12 21.4L17.4 16H18C20.2 16 22 14.2 22 12C22 9.8 20.2 8 18 8H12V21.4Z" fill="#191A23"/>
@@ -177,6 +193,7 @@ const LoginPage = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-3 rounded-xl border-2 border-[#191A23] focus:outline-none focus:shadow-[2px_2px_0_#191A23] transition-shadow bg-[#F3F3F3] focus:bg-white" 
+              placeholder="jane@positivus.com"
               required 
             />
           </motion.div>
@@ -188,6 +205,7 @@ const LoginPage = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full px-4 py-3 rounded-xl border-2 border-[#191A23] focus:outline-none focus:shadow-[2px_2px_0_#191A23] transition-shadow bg-[#F3F3F3] focus:bg-white" 
+              placeholder="••••••••"
               required 
             />
             {isLogin && (
@@ -222,7 +240,6 @@ const LoginPage = () => {
               {isLogin ? 'Create one' : 'Log in'}
             </button>
           </p>
-          <button onClick={() => navigate('/')} className="mt-4 text-xs text-gray-400 hover:text-gray-600">← Back to Home</button>
         </motion.div>
       </motion.div>
     </div>

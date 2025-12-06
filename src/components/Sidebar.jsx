@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Files, Clock, Star, Trash2, Users, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Files, Clock, Star, Trash2, Users, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 const Sidebar = ({ isCollapsed, setIsCollapsed, sidebarOpen, setSidebarOpen, storage, user }) => {
@@ -42,15 +42,22 @@ const Sidebar = ({ isCollapsed, setIsCollapsed, sidebarOpen, setSidebarOpen, sto
 
   return (
     <motion.aside 
-      className={`
-        bg-white border-r-2 border-[#191A23] flex flex-col justify-between 
-        fixed md:relative z-50 h-full flex-shrink-0
-        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
-      `} 
-      animate={{ width: isCollapsed ? 88 : 260 }} 
-      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+      initial={false}
+      animate={{ 
+        width: isCollapsed ? 88 : 260 
+      }}
+      transition={{ 
+        type: "spring", 
+        stiffness: 300, 
+        damping: 30,
+        duration: 0.3
+      }}
+      style={{
+        transform: sidebarOpen ? 'translateX(0)' : 'translateX(-100%)'
+      }}
+      className="bg-white border-r-2 border-[#191A23] flex flex-col justify-between fixed md:relative z-50 h-full flex-shrink-0 md:!transform-none transition-transform duration-300 md:transition-none"
     >
-      {/* Toggle Button */}
+      {/* Desktop Toggle Button */}
       <button 
           onClick={() => setIsCollapsed(!isCollapsed)}
           className="absolute -right-4 top-7 bg-white border-2 border-[#191A23] rounded-full p-1.5 shadow-[2px_2px_0_#191A23] hidden md:block z-50 hover:bg-[#B9FF66] transition-colors"
@@ -62,7 +69,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed, sidebarOpen, setSidebarOpen, sto
         {/* Logo */}
         <div 
           className={`
-            h-20 flex items-center border-b-2 border-[#191A23] bg-[#B9FF66] cursor-pointer transition-all
+            h-20 flex items-center border-b-2 border-[#191A23] bg-[#B9FF66] cursor-pointer transition-all relative
             ${isCollapsed ? 'justify-center px-0' : 'px-6 gap-3'}
           `}
           onClick={() => navigate('/')}
@@ -71,6 +78,16 @@ const Sidebar = ({ isCollapsed, setIsCollapsed, sidebarOpen, setSidebarOpen, sto
              <span className="font-bold text-lg">P</span>
            </div>
            {!isCollapsed && <span className="text-xl font-bold tracking-tight overflow-hidden whitespace-nowrap">Positivus</span>}
+           
+           {/* Mobile Close Button - Inside Logo Area */}
+           {sidebarOpen && (
+             <button 
+               onClick={(e) => { e.stopPropagation(); setSidebarOpen(false); }}
+               className="absolute right-4 bg-white border-2 border-[#191A23] rounded-full p-1.5 shadow-[2px_2px_0_#191A23] md:hidden z-50 hover:bg-red-400 transition-colors"
+             >
+               <X size={16} />
+             </button>
+           )}
         </div>
 
         <div className={`p-4 space-y-4 ${isCollapsed ? 'px-3' : ''}`}>
